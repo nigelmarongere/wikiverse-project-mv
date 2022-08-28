@@ -19,8 +19,15 @@ export const App = () => {
 		try {
 			ev.preventDefault();
 			const articleData = {title, content, name, email, tags};
-			const response = await fetch('', {});
+			const response = await fetch(`${apiURL}/wiki`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(articleData)
+			});
 			const data = await response.json();
+			console.log(JSON.stringify(data));
 			// Reset state
 			setTitle('');
 			setContent('');
@@ -28,6 +35,23 @@ export const App = () => {
 			setEmail('');
 			setTags('');
 		} catch (err) {
+			console.log("Oh no an error! ", err)
+		}
+	}
+
+	async function deletePage(ev){
+		try {
+			ev.preventDefault();
+			const response = await fetch(`${apiURL}/wiki/${pages.slug}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			})
+			const data = await response.json();
+			console.log(JSON.stringify(data));
+			fetchPages();
+		}  catch (err) {
 			console.log("Oh no an error! ", err)
 		}
 	}
@@ -67,6 +91,7 @@ export const App = () => {
 					<p><b>Published:</b> {pages.createdAt}</p>
 					<p>{pages.content}</p>
 					<p><b>Tags: </b>{pages.tags.map((tag) => <div>{tag.name}</div>)}</p>
+					<button onClick={(ev) => {deletePage(ev)}}>DELETE</button>
 					<button onClick={() => {fetchPages()}}>Back to Wiki List</button>
 				</div>
 				:
@@ -81,6 +106,7 @@ export const App = () => {
 						<div><input type="text" placeholder="Tags" value={tags} onChange={(ev) => setTags(ev.target.value)}></input></div>
 						<div><button type="submit">Create Page</button></div>
 					</form>
+					<button onClick={() => {setAdd(false)}}>Back to Wiki List</button>
 				</div>
 				:
 				<div>
